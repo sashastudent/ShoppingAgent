@@ -1,0 +1,14 @@
+Description:
+Today there is a very limited solution for users to manage their purchase lists.
+
+The system provides this solution by learning the customer:
+Customer's buying habits
+Preferences and limitations
+And offers a personalized shopping list for the customer.
+
+This provides services that do not exist
+On current systems and improves the shopping experience.
+
+System use Mchine Learning solution, Matrix factorization with collaborative filtering technique.
+
+. 
