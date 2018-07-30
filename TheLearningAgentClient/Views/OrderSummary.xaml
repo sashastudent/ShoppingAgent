@@ -1,0 +1,89 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ViewModels="clr-namespace:TheLearningAgentClient.ViewModels" x:Class="TheLearningAgentClient.Views.OrderSummary"
+        mc:Ignorable="d"
+        Title="OrderSummary" SizeToContent="WidthAndHeight" ResizeMode="NoResize"  MaxHeight="600"
+        WindowStartupLocation="CenterScreen"
+          FlowDirection="RightToLeft">
+    
+    <Window.DataContext>
+        <ViewModels:OrderSummaryViewModel/>
+    </Window.DataContext>
+
+
+    <ScrollViewer >
+        <StackPanel Margin="20 20 20 20">
+            <Label HorizontalAlignment="Stretch" VerticalAlignment="Center" FontSize="15" FlowDirection="RightToLeft" Content="{Binding OrderSummary.CustomerNameLine, Mode=OneWay}" />
+            <Label HorizontalAlignment="Stretch" VerticalAlignment="Center" FontSize="15" FlowDirection="RightToLeft" Content="{Binding OrderSummary.OrderNumberLine, Mode=OneWay}" ContentStringFormat="מספר הזמנה: {0}"/>
+            <Label HorizontalAlignment="Stretch" Margin="0 0 0 30" VerticalAlignment="Center" FontSize="15" FlowDirection="RightToLeft" Content="{Binding OrderSummary.ItemsCountLine, Mode=OneWay}" ContentStringFormat="כמות מוצרים: {0}"/>
+
+            <ItemsControl ItemsSource = "{Binding OrderSummary.Lines}" >
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="0 0 0 15">
+                            <Grid FlowDirection="RightToLeft" HorizontalAlignment="Stretch" >
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*" />
+                                </Grid.RowDefinitions>
+                                <Label HorizontalAlignment="Stretch" VerticalAlignment="Center" Grid.Column="0" Grid.Row="0"  FontSize="14" FlowDirection="RightToLeft" Content="{Binding ProductName, Mode=OneWay}" />
+                                <!--Label HorizontalAlignment="Stretch" VerticalAlignment="Center" Grid.Column="1" Grid.Row="0"  FontSize="14" FlowDirection="RightToLeft" Content="{Binding Path=ProductID, Mode=OneWay}" ></Label-->
+                            </Grid>
+                            <Grid FlowDirection="RightToLeft" HorizontalAlignment="Stretch" >
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*" />
+                                </Grid.RowDefinitions>
+                                <Label HorizontalAlignment="Stretch" VerticalAlignment="Center" Grid.Column="0" Grid.Row="0"  Grid.ColumnSpan="1" FontSize="14" FlowDirection="RightToLeft" Content="{Binding Price, Mode=OneWay}" ContentStringFormat="{}{0:F2}"/>
+                                <Label HorizontalAlignment="Stretch" VerticalAlignment="Center" Grid.Column="1" Grid.Row="0"  Grid.ColumnSpan="1" FontSize="14" FlowDirection="RightToLeft" Content="x" Margin="5"/>
+                                <Label HorizontalAlignment="Stretch" VerticalAlignment="Center" Grid.Column="2" Grid.Row="0"  Grid.ColumnSpan="1" FontSize="14" FlowDirection="RightToLeft" Content="{Binding Quantity, Mode=OneWay}" >
+                                    <Label.Style>
+                                        <Style TargetType="Label">
+                                            <Setter Property="ContentStringFormat" Value="{}{0:F0}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Path=Weighable}" Value="True">
+                                                    <Setter Property="ContentStringFormat" Value="{}{0:F3}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Label.Style>
+                                </Label>
+                                <Label HorizontalAlignment="Stretch" VerticalAlignment="Center" Grid.Column="3" Grid.Row="0"  Grid.ColumnSpan="1" FontSize="14" FlowDirection="RightToLeft"  >
+                                    <Label.Style>
+                                        <Style TargetType="Label">
+                                            <Setter Property="Content" Value="יח'"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Path=Weighable}" Value="True">
+                                                    <Setter Property="Content" Value="קילו"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Label.Style>
+                                </Label>
+                                <Label HorizontalAlignment="Stretch" VerticalAlignment="Center" Grid.Column="4" Grid.Row="0"  Grid.ColumnSpan="1" FontSize="14" FlowDirection="RightToLeft" Content="{Binding Amount, Mode=OneWay}" ContentStringFormat="{}{0:F2}"/>
+                            </Grid>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel CanVerticallyScroll="True"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+            <Label Margin="0 30 0 0" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="18" FontWeight="Bold" FlowDirection="RightToLeft" Content="{Binding OrderSummary.TotalLine, Mode=OneWay}" ContentStringFormat="לתשלום: {0:F2}"/>
+        </StackPanel>
+    </ScrollViewer>
+</Window>

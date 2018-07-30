@@ -1,0 +1,49 @@
+﻿<UserControl x:Class="TheLearningAgentClient.Views.ItemPreview"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" Background="#FFF4F4F4"
+             xmlns:local="clr-namespace:TheLearningAgentClient"
+             x:Name="root">
+
+    <UserControl.Resources>
+        <local:BoolToVisiblity x:Key="BoolToVisiblity"/>
+    </UserControl.Resources>
+    
+    <ScrollViewer ScrollViewer.VerticalScrollBarVisibility="Auto">
+        <ItemsControl ItemsSource = "{Binding Path=MainScreen.ItemsForPreview}" >
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <StackPanel Name ="ItemInPanel" HorizontalAlignment="Center" VerticalAlignment="Center" Width="138" Tag="{Binding Path=ProductId, Mode=OneWay}">
+                            <Border Background="White" Margin="5">
+                                <Grid>
+                                    <Image Source="{Binding Path=ProductPhotoPath, Mode=OneWay}" Height="128" Width="128" Stretch="Uniform" OpacityMask="{x:Null}"/>
+                                    <Border Margin="5" 
+                                            Visibility="{Binding Path=Recommended,  Converter={StaticResource BoolToVisiblity}}" 
+                                            HorizontalAlignment="Left"  VerticalAlignment="Top" Opacity="0.5" CornerRadius="10" Background="#FFDDD33C">
+                                    <Label Content="מומלץ עבורך"/>    
+                                    </Border>
+                                </Grid>
+                            </Border>
+                            <Label Content="{Binding Path=ProductName, Mode=OneWay}" Foreground="#FF717171" FontSize="15" HorizontalAlignment="Center" Padding="2"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="RightToLeft">
+                                <Label Content="{Binding Path=ProductPrice, Mode=OneWay}" Foreground="#FFA9A9A8" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="2"/>
+                                <Label Content="{Binding Path=Units, Mode=OneWay}" Foreground="#FFA9A9A8" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="2"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <Button Opacity="0" Content="add" Command="{Binding AddItem, ElementName=root}" CommandParameter="{Binding ElementName=ItemInPanel, Path=Tag}" >
+                        </Button>
+                    </Grid>
+
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel HorizontalAlignment="Stretch"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+    </ScrollViewer >
+</UserControl>

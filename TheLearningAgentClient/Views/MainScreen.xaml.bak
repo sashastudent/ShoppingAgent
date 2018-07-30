@@ -1,0 +1,115 @@
+﻿<Page 
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:views="clr-namespace:TheLearningAgentClient.Views"
+      xmlns:ViewModels="clr-namespace:TheLearningAgentClient.ViewModels"
+      xmlns:local="clr-namespace:TheLearningAgentClient"
+      x:Class="TheLearningAgentClient.Views.MainScreen"
+      mc:Ignorable="d" 
+      Title="Main Screen"
+      x:Name="myPage"
+      Background="#FF193A13"
+      MinWidth="890"
+      MinHeight="500">
+    
+    <Page.DataContext>
+        <ViewModels:MainScreenViewModel/>
+    </Page.DataContext>
+
+    <Page.Resources>
+        <local:TotalToIsListNotEmpty x:Key="TotalToIsListNotEmpty"/>
+    </Page.Resources>
+
+    <DockPanel Margin="10">
+        <DockPanel DockPanel.Dock="Right" Width="300">
+            <Grid DockPanel.Dock="Top" Background="#FF224E19">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+                <Label FontSize="15"  Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding Path=MainScreen.GreetingName}"/>
+                <Button Style="{StaticResource MainScreenBtnStyle}" Grid.Column="0" Grid.Row="1" Background="#FF307123" Content="התנתק" Command="{Binding LogOffCommand}"/>
+                <Button Style="{StaticResource MainScreenBtnStyle}" Grid.Column="1" Grid.Row="1" Background="#FF307123" Content="עדכון פרטים" Command="{Binding EditPersonalInformationCommand}"/>
+            </Grid>
+            <Grid DockPanel.Dock="Bottom" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+                <Button IsEnabled="{Binding Path=MainScreen.Total, 
+                            Converter={StaticResource TotalToIsListNotEmpty}}"
+                            Style="{StaticResource MainScreenBtnStyle}" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Background="#FFB13232" Content="{Binding Path=MainScreen.Total}" Command="{Binding PayAndCloseOrderCommand}"/>
+
+                <Button Style="{StaticResource MainScreenBtnStyle}" Grid.Column="0" Grid.Row="1" Background="#FF96C937" Content="טען רשימה" Command="{Binding LoadOrderCommand}"/>
+                <Button IsEnabled="{Binding Path=MainScreen.Total, 
+                            Converter={StaticResource TotalToIsListNotEmpty}}"
+                            Style="{StaticResource MainScreenBtnStyle}" Grid.Column="1" Grid.Row="1" Background="#FF96C937" Content="שמור רשימה" Command="{Binding SaveOrderCommand}"/>
+                <Button Style="{StaticResource MainScreenBtnStyle}" Grid.Column="0" Grid.Row="2" Background="#FF96C937" Content="קניות קודמות" Command="{Binding LoadPrevOrderCommand}"/>
+                <Button IsEnabled="{Binding Path=MainScreen.Total, 
+                            Converter={StaticResource TotalToIsListNotEmpty}}"
+                            Style="{StaticResource MainScreenBtnStyle}" Grid.Column="1" Grid.Row="2" Background="#FF96C937" Content="בטל עסקה" Command="{Binding CancelOrderCommand}"/>
+            </Grid>
+            <views:ItemInCart DockPanel.Dock="Top" x:Name = "ItemInCartViewControl" DelItem="{Binding DeleteItemFromCartCommand}" ChangeQTY="{Binding ChangeQtyRequestCommand}" />
+
+        </DockPanel>
+        <DockPanel DockPanel.Dock="Right" >
+            <DockPanel Background="#FF62BB46" DockPanel.Dock="Top">
+
+                <ComboBox ItemsSource="{Binding Path=MainScreen.Departments}" Style="{DynamicResource GreenComboBox}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="20" IsEditable="True" IsReadOnly="True" VerticalAlignment="Center" Text="קטגוריות" Height="60"  Background="#FF62BB46" Name="cmbxDepartments" SelectedItem="{Binding SelectedDepartment}" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ComboBox.ItemContainerStyle>
+                        <Style TargetType="ComboBoxItem">
+                            <Setter Property="FontSize" Value="20"/>
+                            <Setter Property="Background" Value="#FF62BB46"/>
+                            <Setter Property="BorderBrush" Value="#FF62BB46"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Margin" Value="0"/>
+                        </Style>
+                    </ComboBox.ItemContainerStyle>
+                </ComboBox>
+
+                <ComboBox Style="{DynamicResource GreenComboBox}" IsTextSearchEnabled="True" ItemsSource = "{Binding Path=MainScreen.IngredientsToFilter}" VerticalContentAlignment="Center" FontSize="20" IsEditable="True" IsReadOnly="True" VerticalAlignment="Center" Text="סנן רכיבים" Height="60"  Background="#FF62BB46" Name="cmbxIngredients" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ComboBox.ItemContainerStyle>
+                        <Style TargetType="ComboBoxItem">
+                            <Setter Property="FontSize" Value="20"/>
+                            <Setter Property="Background" Value="#FF62BB46"/>
+                            <Setter Property="BorderBrush" Value="#FF62BB46"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Margin" Value="0"/>
+                        </Style>
+                    </ComboBox.ItemContainerStyle>
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate >
+                            <StackPanel  Orientation="Horizontal" Name="IngredientStackPanel"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0">
+                                <CheckBox VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="0" Tag="{Binding Path=IngredientID}"  IsChecked="{Binding Path=IsChecked}" Width="20" Command="{Binding DataContext.IngredientCheckedChangedCommand, ElementName=myPage}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}"/>
+                                <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0">
+                                    <Label Content="{Binding Path=Description}" Width="200" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="0"/>
+                                    <Button Opacity="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Padding="0" Margin="0"/>
+                                </Grid>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Button Width="158" Background="#FF5AAB40" Style="{StaticResource MainScreenBtnStyle}" Content="הוסף מומלצים" Command="{Binding AddingAllRecomendationsFromAgentCommand}"/>
+
+                <Image DockPanel.Dock="Right"  Width="25" Margin="6,6,12,6" Source="/TheLearningAgentClient;component/Photos/search-icon.png" />
+                <TextBox DockPanel.Dock="Right" Width="188" FontSize="20" VerticalAlignment="Center" FlowDirection="RightToLeft" HorizontalAlignment="Right" Margin="5" Text="{Binding SearchString, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" RenderTransformOrigin="0.5,0.5"/>
+            </DockPanel>
+            <views:ItemPreview  DockPanel.Dock="Top" x:Name = "ItemPreviewViewControl" AddItem="{Binding ItemSelectedFromCatalogCommand}"/>
+        </DockPanel>
+
+    </DockPanel>
+</Page>

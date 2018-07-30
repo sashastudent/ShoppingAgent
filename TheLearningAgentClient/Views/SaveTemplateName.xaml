@@ -1,0 +1,32 @@
+﻿<Window x:Class="TheLearningAgentClient.Views.SaveTemplateName"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="SaveTemplateName"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        SizeToContent="WidthAndHeight" 
+        WindowStartupLocation="CenterScreen"
+        FontSize="14" Background="#FFBD9D9D"
+      FlowDirection="RightToLeft">
+    
+    <Border Margin="20" CornerRadius="20" Background="#2e3137">
+        <StackPanel Margin="20" >
+            <Label Content="שמור רשימה" Foreground="White" FontSize="25" HorizontalAlignment="Center"/>
+
+            <Separator Padding="60" Margin="20 0 20 20"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <StackPanel>
+                    <TextBox Width="150" Margin="10 0 5 0" x:Name="txtTemplatName" KeyDown="txtTemplatName_KeyDown"  Background="#545d6a" Foreground="White" FontSize="18"/>
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="60 10">
+                <Button Style="{StaticResource BigFormBtnStyle}" x:Name="btnOK" Content="אישור" Click="btnOK_Click" />
+                <Button Style="{StaticResource BigFormBtnStyle}" x:Name="btnCancel" Content="ביטול" Click="btnCancel_Click" />
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>

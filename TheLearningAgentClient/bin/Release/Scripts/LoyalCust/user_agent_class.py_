@@ -1,0 +1,295 @@
+import pandas as pd
+import pyodbc
+import numpy as np
+from pandas import Series, DataFrame
+import matrix_factorization_utilities
+from sklearn.model_selection import train_test_split
+import pickle
+
+class user_agent_class(object):
+    """This class Responsible for learning the purchasing habits of the user 
+    Major Data frames: 
+    user_product_purch_df - contain ordered usere's,
+                            ordered purchases products                             
+                            and quantity of product purchases. 
+                            not include information 
+                            about products that never purchased
+                            anduser that never do purchas.
+    products_df -           containing informaton on products.  
+    ordered_products-       contain ordered poducts that purchased by user at least once.
+    ordered_users -         contain ordered user that purchased at least once.
+    """
+
+    def setDataFrames(self):
+        """
+        Create and sets data farems use db querys
+        """
+        conn = self.connectionDB();
+
+        #query db for get table products
+        qry = 'SELECT [product_id],[product_name] FROM [db_shopagent].[dbo].[products]'
+        products = self.read_query(qry, conn)
+        #self.products_delils = products
+
+        #query for get product from receipts ordered 
+        qry = 'select [product_id],[product_num] from [db_shopagent].[dbo].[only_receipt_products]'
+        self.ordered_products = self.read_query(qry, conn)
+        #create product df only with product from reciepts 
+        products = pd.merge(self.ordered_products, products)
+
+        #query db for get table receipet_ref_product
+        qry = 'select * from [db_shopagent].[dbo].[receipet_ref_product]'
+        receipet_ref_product = self.read_query(qry, conn) 
+       
+        receipet_ref_product = pd.merge(receipet_ref_product, self.ordered_products)
+
+        #query db for get table receipt_ref_user
+        qry = 'select * from [db_shopagent].[dbo].[receipt_ref_user]'
+        receipt_ref_user = self.read_query(qry, conn)
+
+        #query db for get ordered users id
+        qry = 'SELECT [user_num],[user_id] FROM [db_shopagent].[dbo].[only_receipt_user]'
+        self.ordered_users = self.read_query(qry, conn)
+
+        receipt_ref_user = pd.merge(receipt_ref_user, self.ordered_users)
+  
+        self.close_connecionDB(conn)
+
+        #Inner join 
+        df = pd.merge(receipet_ref_product, receipt_ref_user)
+
+        #clean df 
+        df = df[['product_num', 'quantity', 'user_num']]#only nededd columns
+        self.user_product_purch_df = df.groupby(['user_num', 'product_num']).sum().reset_index() # Group together
+
+        #create product df with ordered num products and name
+        products_df = products[['product_num','product_name']]
+        self.products_df = products_df
+
+
+    def stratLearn(self):
+        """
+        Learn user use other users by matrix fuctorization mathod.
+        first create pivot table matrix of users, products and purchases.
+        create two vectors:
+        U-users features 
+        P- products features
+        predicted purchases list get from multiplied U and P vectors 
+        """
+        self.setDataFrames()
+
+        #normalize quntity
+        self.user_product_purch_df = self.normalize_quantity()
+        
+        purchases = pd.pivot_table(self.user_product_purch_df, index='user_num', columns='product_num', aggfunc=np.max)
+        U, M = matrix_factorization_utilities.low_rank_matrix_factorization(purchases.as_matrix(), num_features=15, regularization_amount=2.6)    
+        predicted_purchases = np.matmul(U,M)
+        M = np.transpose(M)
+        pickle.dump(U, open("user_features.dat", "wb"))
+        pickle.dump(M, open("product_features.dat", "wb"))
+        pickle.dump(predicted_purchases, open("predicted_purchases.dat", "wb"))
+
+    def getActual_User_Purchased_List(self, userId):
+        """
+        Internal function that get actual user purchases 
+        :param userId: user id for recognize user purchases
+        :return actual_user_purchases_merge: returned df of actual user purchases 
+        """
+        user_num_to_search = userId
+        #user's actual product purchases, merge for do not getting producs which were never bought by eny user
+        actual_user_purchases = self.user_product_purch_df[self.user_product_purch_df['user_num'] == user_num_to_search]      
+        actual_user_purchases_merge = pd.merge(self.products_df, actual_user_purchases, on='product_num')
+        return actual_user_purchases_merge
+
+
+    def create_IDs_products_list_from_product_nums(self, recommended_df):
+        """
+        Create list of id's products from df that include prodcts nums. 
+        :param recommended_df: data frame that includs products numbers that needed convert to list with products ides.
+        :return products_ids_list: returned list ides of products 
+        """
+        list = pd.merge(self.ordered_products, recommended_df, on='product_num')
+        products_ids = list['product_id']
+        products_ids_list = products_ids.values.T.tolist()
+        return products_ids_list
+
+
+    def getRecommendsList(self,userId):   
+        """
+        Returned recommended user list that combined with purchases habits list and not which were not bought by this user
+        but that will he might want to purchas.
+        use U, M, predicted_purchases dat fiels thet created in stratLearn function.
+
+        :param userId: get userid to for recognize and create recommended purch list for this user.
+        :return products_ids_list: list of recommended products ides, 
+        combined list with habits purchases products ides and might want to purchas products ides
+        """
+        user_id_to_search = userId
+        idx = (self.ordered_users['user_id'] == user_id_to_search) 
+        user_num_to_search = self.ordered_users.loc[idx,'user_num'].iat[0]
+
+        U = pickle.load(open("user_features.dat", "rb"))
+        M = pickle.load(open("product_features.dat", "rb"))
+        predicted_purchases = pickle.load(open("predicted_purchases.dat", "rb"))
+
+        #get actual user purchases list
+        actual_user_purchases_merge = self.getActual_User_Purchased_List(user_num_to_search)
+       
+        #user_purchases also his ratings on products
+        user_purchases = predicted_purchases[user_num_to_search-1]
+        product_df_and_user_prediction = self.products_df
+        #add purchases rating user column
+        product_df_and_user_prediction['purchases'] = user_purchases
+
+        already_purchases = actual_user_purchases_merge['product_num']
+       
+        recommended_habits_purchases_df = self.recommendedHabitsList(already_purchases)
+        recommended_new_purchases_df = self.recommendedNewList(already_purchases)
+
+        products_ids_habits_list = self.create_IDs_products_list_from_product_nums(recommended_habits_purchases_df)
+        products_ids_new_list = self.create_IDs_products_list_from_product_nums(recommended_new_purchases_df)
+
+        products_ids_list =  products_ids_habits_list + products_ids_new_list
+        return products_ids_list
+
+
+    def recommendedHabitsList(self, already_purchases):
+        """
+        create predicted habits products list that learn on user purchases 
+        habits sorted by quntity purchases from high to low
+        """
+        recommended_habits_purchases_df = self.products_df[self.products_df.index.isin(already_purchases) == True]
+        recommended_habits_purchases_df = recommended_habits_purchases_df.sort_values(by = ['purchases'], ascending = False)#sorted by quntity purchases 
+        recommended_habits_purchases_df = recommended_habits_purchases_df[['product_name','purchases','product_num']].head(20)
+        #self.printToConsol(recommended_habits_purchases_df, "habits")
+        return recommended_habits_purchases_df
+
+    def recommendedNewList(self, already_purchases):
+        """
+        create recommended not purchases yet products sorted by quntity purchases
+        from high to low
+        """
+        recommended_new_purchases_df = self.products_df[self.products_df.index.isin(already_purchases) == False] 
+        recommended_new_purchases_df = recommended_new_purchases_df.sort_values(by = ['purchases'], ascending = False)#sorted by quntity purchases
+        recommended_new_purchases_df = recommended_new_purchases_df[['product_name','purchases','product_num']].head(20)
+        #self.printToConsol(recommended_new_purchases_df, "newlist")
+        return recommended_new_purchases_df
+
+    def printToConsol(self, df, dfnama):
+        print(dfnama)
+        print(df)
+  
+
+    def normalize_quantity(self):
+        """
+        mormalize users quantity of purchases
+        0 - 1 : Not buying, Buying one time can only be an experienc the product.
+        2 - 4 : Experience with product
+        5 - 6 : buying the product 
+        7 - 8 : Buying the product often 
+        9 +   : In purchases habits, not limited for allowing changes in buying habits.
+
+        param user_product_purch_df - include users products and quantity purchases.
+        param normalized_df - returned normalized data frame.
+        """
+        normalized_df = self.user_product_purch_df
+        normalized_df.quantity.loc[(normalized_df.quantity <= 1)] = 1 #not purchases
+        normalized_df.quantity.loc[(normalized_df.quantity == 2) | (normalized_df.quantity <= 4)] = 2 
+        normalized_df.quantity.loc[(normalized_df.quantity == 5) |(normalized_df.quantity < 7)] = 3
+        normalized_df.quantity.loc[(normalized_df.quantity == 7) |(normalized_df.quantity < 9)] = 4
+        normalized_df.quantity.loc[(normalized_df.quantity >= 9)] = 5
+        return normalized_df
+
+    def eval_learning(self):
+        """
+        Split to traning and test data frames and evaluate modele
+    
+        """
+        self.setDataFrames()
+        normalized_df = self.normalize_quantity()
+    
+        train_df, test_df = (train_test_split(normalized_df.quantity ,test_size=0.3, random_state=0))
+
+        all_df = self.user_product_purch_df
+        test = all_df.drop('quantity', axis=1)
+
+        df_test = pd.merge(test, test_df.to_frame(),  left_index=True, right_index=True, how='left')
+
+        all_df = self.user_product_purch_df
+        train = all_df.drop('quantity', axis=1)
+
+        df_train = pd.merge(train, train_df.to_frame(),left_index=True, right_index=True, how='left')
+
+        df_train['quantity'].fillna(0, inplace=True)#replace all NaN with Zero
+        df_train.quantity.loc[(df_train.quantity <= 1)] = 1
+        purchase_traning_df = pd.pivot_table(df_train, index='user_num', columns='product_num', aggfunc=np.max)
+        print(purchase_traning_df.shape)
+       
+        purchase_traning_df_matrix = pd.DataFrame(index=purchase_traning_df.index, columns=purchase_traning_df.columns, data=purchase_traning_df.as_matrix())
+
+        df_test['quantity'].fillna(0, inplace=True)
+        df_test.quantity.loc[(df_test.quantity <= 1)] = 1
+        purchase_test_df = pd.pivot_table(df_test, index='user_num', columns='product_num', aggfunc=np.max)
+        print(purchase_test_df.shape)
+
+        Uu, Mm = matrix_factorization_utilities.low_rank_matrix_factorization(purchase_traning_df.as_matrix(),num_features=15,regularization_amount=2.6)
+        predict_ratings_learnOnTrain = np.matmul(Uu,Mm)
+
+        rmse_traning = matrix_factorization_utilities.RMSE(purchase_traning_df.as_matrix(),  predict_ratings_learnOnTrain)
+        print(rmse_traning)
+
+        rmse_testing = matrix_factorization_utilities.RMSE(purchase_test_df.as_matrix(),predict_ratings_learnOnTrain)
+        print( rmse_testing )
+
+    def connectionDB(self):        
+        """
+        Connecting to DB 
+        """
+        # Parameters
+        server ='.\SQLEXPRESS'
+        db ='db_shopagent'
+        #Create the connection
+        try:
+            connection = pyodbc.connect('DRIVER={SQL Server};SERVER=' + server + ';DATABASE' + db + ';Trusted_Connection=yes')
+            return connection
+        except Exception as e:
+               print("Couldn't connect: ",e)
+
+    def close_connecionDB(self,conn):
+        """
+        Close cinnection
+        """
+        conn.close()
+
+    def read_query(self, qry, connention):
+        """
+        Do and read query to db
+        """
+        try:
+           return pd.read_sql(qry, connention)
+        except Exception as e:
+           print("Query do not commit: ",e)
+
+
+   
+
+        
+   
+
+
+
+   
+
+
+
+
+
+
+
+   
+
+
+
+
+
+      

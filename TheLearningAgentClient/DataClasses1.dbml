@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="db_shopagent" Class="DataClasses1DataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="AppSettings" ConnectionString="Data Source=.\SQLEXPRESS;Initial Catalog=db_shopagent;Integrated Security=True" SettingsObjectName="TheLearningAgentClient.Properties.Settings" SettingsPropertyName="db_shopagentConnectionString" Provider="System.Data.SqlClient" />
+  <Table Name="dbo.alternative_products" Member="alternative_products">
+    <Type Name="alternative_product">
+      <Column Name="product_id" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="alternative_product_1" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="alternative_product_2" Type="System.Int32" DbType="Int" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.user_ref_limits" Member="user_ref_limits">
+    <Type Name="user_ref_limit">
+      <Column Name="limit_id" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="user_id" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="Partial" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Association Name="limit_user_ref_limit" Member="limit" ThisKey="limit_id" OtherKey="limit_id" Type="limit" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+      <Association Name="user_user_ref_limit" Member="user" ThisKey="user_id" OtherKey="user_id" Type="user" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.category_products" Member="category_products">
+    <Type Name="category_product">
+      <Column Name="category_id" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="category_name" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="image_category" Type="System.String" DbType="NChar(10)" CanBeNull="true" />
+      <Association Name="category_product_product" Member="products" ThisKey="category_id" OtherKey="category_id" Type="product" />
+    </Type>
+  </Table>
+  <Table Name="dbo.chain_store" Member="chain_stores">
+    <Type Name="chain_store">
+      <Column Name="chain_store_id" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="chain_name" Type="System.String" DbType="NChar(10)" CanBeNull="true" />
+      <Association Name="chain_store_supermarket" Member="supermarkets" ThisKey="chain_store_id" OtherKey="chain_store_id" Type="supermarket" />
+    </Type>
+  </Table>
+  <Table Name="dbo.components_ref_product" Member="components_ref_products">
+    <Type Name="components_ref_product">
+      <Column Name="component_id" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="product_id" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="product_component_components_ref_product" Member="product_component" ThisKey="component_id" OtherKey="component_id" Type="product_component" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+      <Association Name="product_components_ref_product" Member="product" ThisKey="product_id" OtherKey="product_id" Type="product" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.limits" Member="limits">
+    <Type Name="limit">
+      <Column Name="limit_id" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="limit_name" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Association Name="limit_user_ref_limit" Member="user_ref_limits" ThisKey="limit_id" OtherKey="limit_id" Type="user_ref_limit" />
+    </Type>
+  </Table>
+  <Table Name="dbo.only_receipt_user" Member="only_receipt_users">
+    <Type Name="only_receipt_user">
+      <Column Name="user_num" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="user_id" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="user_only_receipt_user" Member="user" ThisKey="user_id" OtherKey="user_id" Type="user" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.product_components" Member="product_components">
+    <Type Name="product_component">
+      <Column Name="component_id" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="component_name" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Association Name="product_component_components_ref_product" Member="components_ref_products" ThisKey="component_id" OtherKey="component_id" Type="components_ref_product" />
+      <Association Name="product_component_unlike_component" Member="unlike_components" ThisKey="component_id" OtherKey="component_id" Type="unlike_component" />
+    </Type>
+  </Table>
+  <Table Name="dbo.receipet_ref_product" Member="receipet_ref_products">
+    <Type Name="receipet_ref_product">
+      <Column Name="receipt_id" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="product_id" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="quantity" Type="System.Double" DbType="Float NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Association Name="receipt_receipet_ref_product" Member="receipt" ThisKey="receipt_id" OtherKey="receipt_id" Type="receipt" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+      <Association Name="product_receipet_ref_product" Member="product" ThisKey="product_id" OtherKey="product_id" Type="product" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.receipt" Member="receipts">
+    <Type Name="receipt">
+      <Column Name="receipt_id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="sum" Type="System.Decimal" DbType="Money" CanBeNull="true" />
+      <Column Name="date" Type="System.DateTime" DbType="Date" CanBeNull="true" />
+      <Column Name="market_id" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Association Name="receipt_receipet_ref_product" Member="receipet_ref_products" ThisKey="receipt_id" OtherKey="receipt_id" Type="receipet_ref_product" />
+      <Association Name="receipt_receipt_ref_user" Member="receipt_ref_users" ThisKey="receipt_id" OtherKey="receipt_id" Type="receipt_ref_user" />
+      <Association Name="supermarket_receipt" Member="supermarket" ThisKey="market_id" OtherKey="market_id" Type="supermarket" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.receipt_ref_user" Member="receipt_ref_users">
+    <Type Name="receipt_ref_user">
+      <Column Name="user_id" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="receipt_id" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Association Name="receipt_receipt_ref_user" Member="receipt" ThisKey="receipt_id" OtherKey="receipt_id" Type="receipt" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+      <Association Name="user_receipt_ref_user" Member="user" ThisKey="user_id" OtherKey="user_id" Type="user" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.supermarket" Member="supermarkets">
+    <Type Name="supermarket">
+      <Column Name="market_id" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="address" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="chain_store_id" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="market_name" Type="System.String" DbType="NChar(10)" CanBeNull="true" />
+      <Association Name="supermarket_receipt" Member="receipts" ThisKey="market_id" OtherKey="market_id" Type="receipt" />
+      <Association Name="chain_store_supermarket" Member="chain_store" ThisKey="chain_store_id" OtherKey="chain_store_id" Type="chain_store" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.unlike_components" Member="unlike_components">
+    <Type Name="unlike_component">
+      <Column Name="component_id" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="user_id" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="product_component_unlike_component" Member="product_component" ThisKey="component_id" OtherKey="component_id" Type="product_component" IsForeignKey="true" />
+      <Association Name="user_unlike_component" Member="user" ThisKey="user_id" OtherKey="user_id" Type="user" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.[user]" Member="users">
+    <Type Name="user">
+      <Column Name="user_id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="user_name" Type="System.String" DbType="VarChar(20) NOT NULL" CanBeNull="false" />
+      <Column Name="password" Type="System.String" DbType="VarChar(128) NOT NULL" CanBeNull="false" />
+      <Column Name="name" Type="System.String" DbType="NChar(10)" CanBeNull="true" />
+      <Column Name="last_name" Type="System.String" DbType="NChar(10)" CanBeNull="true" />
+      <Column Name="phone" Type="System.String" DbType="NChar(10)" CanBeNull="true" />
+      <Column Name="address" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Association Name="user_user_ref_limit" Member="user_ref_limits" ThisKey="user_id" OtherKey="user_id" Type="user_ref_limit" />
+      <Association Name="user_only_receipt_user" Member="only_receipt_users" ThisKey="user_id" OtherKey="user_id" Type="only_receipt_user" />
+      <Association Name="user_receipt_ref_user" Member="receipt_ref_users" ThisKey="user_id" OtherKey="user_id" Type="receipt_ref_user" />
+      <Association Name="user_unlike_component" Member="unlike_components" ThisKey="user_id" OtherKey="user_id" Type="unlike_component" />
+    </Type>
+  </Table>
+  <Table Name="dbo.products" Member="products">
+    <Type Name="product">
+      <Column Name="product_id" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="product_name" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="price" Type="System.Decimal" DbType="Money" CanBeNull="true" />
+      <Column Name="category_id" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="image" Type="System.String" DbType="VarChar(50)" CanBeNull="true" />
+      <Column Name="weighable" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Association Name="product_components_ref_product" Member="components_ref_products" ThisKey="product_id" OtherKey="product_id" Type="components_ref_product" />
+      <Association Name="product_receipet_ref_product" Member="receipet_ref_products" ThisKey="product_id" OtherKey="product_id" Type="receipet_ref_product" />
+      <Association Name="category_product_product" Member="category_product" ThisKey="category_id" OtherKey="category_id" Type="category_product" IsForeignKey="true" DeleteRule="CASCADE" />
+    </Type>
+  </Table>
+</Database>

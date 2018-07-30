@@ -1,0 +1,13 @@
+C:\Users\nl250062\source\repos\TheLearningAgentClient\CreateDB\bin\Release\CreateDB.exe.config
+C:\Users\nl250062\source\repos\TheLearningAgentClient\CreateDB\bin\Release\CreateDB.exe
+C:\Users\nl250062\source\repos\TheLearningAgentClient\CreateDB\bin\Release\CreateDB.pdb
+C:\Users\nl250062\source\repos\TheLearningAgentClient\CreateDB\obj\Release\CreateDB.csproj.CoreCompileInputs.cache
+C:\Users\nl250062\source\repos\TheLearningAgentClient\CreateDB\obj\Release\CreateDB.exe
+C:\Users\nl250062\source\repos\TheLearningAgentClient\CreateDB\obj\Release\CreateDB.pdb
+C:\Users\sasha\Desktop\project\TheLearningAgentClient\CreateDB\bin\Release\CreateDB.exe.config
+C:\Users\sasha\Desktop\project\TheLearningAgentClient\CreateDB\bin\Release\CreateDB.exe
+C:\Users\sasha\Desktop\project\TheLearningAgentClient\CreateDB\bin\Release\CreateDB.pdb
+C:\Users\sasha\Desktop\project\TheLearningAgentClient\CreateDB\obj\Release\CreateDB.csprojResolveAssemblyReference.cache
+C:\Users\sasha\Desktop\project\TheLearningAgentClient\CreateDB\obj\Release\CreateDB.csproj.CoreCompileInputs.cache
+C:\Users\sasha\Desktop\project\TheLearningAgentClient\CreateDB\obj\Release\CreateDB.exe
+C:\Users\sasha\Desktop\project\TheLearningAgentClient\CreateDB\obj\Release\CreateDB.pdb
